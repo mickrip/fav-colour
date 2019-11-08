@@ -1,0 +1,23 @@
+{
+  "name": "favcolour",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "9.1.1",
+    "react": "16.11.0",
+    "react-beautiful-dnd": "^11.0.5",
+    "react-dom": "16.11.0",
+    "styled-components": "^4.4.0"
+  },
+  "devDependencies": {
+    "next-transpile-modules": "^2.3.1"
+  }
+}

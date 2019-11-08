@@ -1,0 +1,8 @@
+{
+  "name": "@bluechilli/bcstatemachine",
+  "version": "0.0.1",
+  "description": "React Hook state engine",
+  "main": "src/index.js",
+  "author": "Bluechilli",
+  "license": "MIT"
+}
