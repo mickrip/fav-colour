@@ -108,7 +108,7 @@ const ColorSelect = () => {
                 //console.log('CLICK', answerKey);
               }}
             >
-              Next 🠞
+              Next &gt;
             </Button>
           </Appear>
         </ButtonContainerStyles>
