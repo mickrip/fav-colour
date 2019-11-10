@@ -1,28 +1,43 @@
-import {useState, useEffect} from 'react';
-import colors from "../helpers/colors";
-import {getNextQuestion} from "../helpers/chooser";
-
+import { useState, useEffect } from 'react';
+import colors from '../helpers/colors';
+import {
+  getLookupTable,
+  getNextQuestion,
+  howManyLeft,
+  processAnswers,
+} from '../helpers/chooser';
 
 const selections = () => {
+  const [currentQuestion, setCurrentQuestion] = useState([]);
+  const [lookupTable, setLookupTable] = useState([]);
+  const [hml, setHml] = useState(Infinity);
+  const [finished, setFinished] = useState(false);
 
-    const [currentQuestion, setCurrentQuestion] = useState([]);
+  useEffect(() => {
+    setFinished(hml <= 5);
+  }, [hml]);
 
-    useEffect(() => {
-        // const help = getNextQuestion();
-    }, []);
+  const updateAnswers = arr => {
+    processAnswers(arr);
+    updateQuestion();
+  };
 
-    const updateQuestion = () => {
-        const result = getNextQuestion();
-        setCurrentQuestion(result);
-    };
+  const updateQuestion = () => {
+    const result = getNextQuestion();
+    setCurrentQuestion(result);
+    setLookupTable(getLookupTable());
+    setHml(howManyLeft());
+  };
 
-    return {
-        updateQuestion,
-        currentQuestion,
-        colors
-    }
-
-
+  return {
+    updateQuestion,
+    updateAnswers,
+    currentQuestion,
+    colors,
+    lookupTable,
+    howManyLeft: hml,
+    finished,
+  };
 };
 
 export default selections;

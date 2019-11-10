@@ -1,7 +1,5 @@
-const withTM = require('next-transpile-modules');
+const withTM = require("next-transpile-modules");
 
 module.exports = withTM({
-    transpileModules: [
-        "@bluechilli/bcstatemachine"
-    ]
+  transpileModules: ["@bluechilli/bcstatemachine", "@bluechilli/appear"]
 });

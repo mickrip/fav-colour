@@ -1,0 +1,8 @@
+{
+  "name": "@bluechilli/appear",
+  "version": "0.0.1",
+  "description": "Appear Thing",
+  "main": "src/index.js",
+  "author": "Bluechilli",
+  "license": "MIT"
+}

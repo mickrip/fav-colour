@@ -16,9 +16,12 @@
     "react": "16.11.0",
     "react-beautiful-dnd": "^11.0.5",
     "react-dom": "16.11.0",
+    "react-onclickoutside": "^6.9.0",
+    "react-spring": "^8.0.27",
     "styled-components": "^4.4.0"
   },
   "devDependencies": {
-    "next-transpile-modules": "^2.3.1"
+    "next-transpile-modules": "^2.3.1",
+    "prettier": "^1.19.0"
   }
 }

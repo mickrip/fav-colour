@@ -1,99 +1,122 @@
-import React, {useEffect, useState} from "react";
-import ColorSelectStyles from "./ColorSelectStyles.jsx"
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import colors from "../../helpers/colors";
-import ColorSquare from "../ColorSquare/ColorSquare";
-import {useAppState} from "@bluechilli/bcstatemachine";
-import orderBy from "lodash/orderBy";
+import React, { useEffect, useState } from 'react';
+import ColorSelectStyles from './ColorSelectStyles.jsx';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ColorSquare from '../ColorSquare/ColorSquare';
+import { useAppState } from '@bluechilli/bcstatemachine';
+import { animSlideRightLeft, Appear } from '@bluechilli/appear';
+import ColorSelectStylesInner from './ColorSelectStylesInner';
+import LookupTable from '../LookupTable/LookupTable';
+import { TOP } from '../../helpers/chooser';
+import Button from '../Button/Button';
+import ButtonContainerStyles from './ButtonContainerStyles';
 
-const getListStyle = isDraggingOver => ({
-    background: isDraggingOver ? 'lightblue' : 'lightgrey',
-    display: 'flex',
-    padding: 8,
-    overflow: 'auto',
+const getListStyle = _ => ({
+  display: 'flex',
+  padding: 8,
+  overflow: 'auto',
 });
 
 const ColorSelect = () => {
-    const {updateQuestion, currentQuestion} = useAppState("selections");
-    const [localCurrentQuestion, setLocationCurrentQuestion] = useState([]);
-    console.log("selectionsState", currentQuestion);
+  const { updateQuestion, currentQuestion, updateAnswers, finished } = useAppState(
+    'selections'
+  );
+  const [localCurrentQuestion, setLocationCurrentQuestion] = useState([]);
+  const [showBlocks, setShowBlocks] = useState(false);
 
-    useEffect(() => {
-        updateQuestion();
-    }, []);
+  useEffect(() => {
+    updateQuestion();
+    setShowBlocks(true);
+  }, []);
 
-    useEffect(() => {
-        console.log("CQ is updated");
-        const _lcc = currentQuestion.map((_q, _k) => {
-            _q.index = _k;
-            return _q;
-        });
-        setLocationCurrentQuestion(_lcc);
-        console.log("L", _lcc);
+  useEffect(() => {
+    setLocationCurrentQuestion(currentQuestion);
+  }, [currentQuestion]);
 
-    }, [currentQuestion]);
+  const reorder = (startIndex, endIndex) => {
+    const result = Array.from(localCurrentQuestion);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
 
-    const findKeyByIndex = i => {
-        return localCurrentQuestion.findIndex(q => {
-            return q.index === i;
-        });
-    };
+    return result;
+  };
 
-    const swapIndex = (sourceIndex, destIndex) => {
-        console.log("SWAPPING INDEX", sourceIndex, destIndex);
-        const sourceKey = findKeyByIndex(sourceIndex);
-        const destKey = findKeyByIndex(destIndex);
-        const lcq = localCurrentQuestion;
-        lcq[sourceKey].index = destIndex;
-        lcq[destKey].index = sourceIndex;
-        setLocationCurrentQuestion(lcq);
-        console.log("----- source dest key", sourceKey, destKey);
-    };
+  const onDragEnd = res => {
+    if (!res.destination) {
+      return;
+    }
 
-    const onDragEnd = test => {
-        const swapSource = test.source.index;
-        const swapDest = test.destination.index;
+    setLocationCurrentQuestion(reorder(res.source.index, res.destination.index));
+  };
 
-        swapIndex(swapSource, swapDest);
+  return (
+    <>
+      <ColorSelectStyles>
+        <Appear show={showBlocks && !finished} anim={animSlideRightLeft}>
+          <ColorSelectStylesInner>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="colors" direction="horizontal" type="color">
+                {(provided, snapshot) => {
+                  return (
+                    <div
+                      ref={provided.innerRef}
+                      style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                      {localCurrentQuestion.map((qdata, key) => {
+                        if (!qdata) return;
 
-    };
+                        return (
+                          <Draggable
+                            shouldRespectForcePress={true}
+                            key={qdata.id}
+                            draggableId={qdata.id + 1}
+                            index={key}
+                          >
+                            {(dragprovided, dragsnapshot) => (
+                              <>
+                                <ColorSquare
+                                  provided={dragprovided}
+                                  snapshot={dragsnapshot}
+                                  col={qdata.name}
+                                />
+                              </>
+                            )}
+                          </Draggable>
+                        );
+                      })}
+                      {provided.placeholder}
+                    </div>
+                  );
+                }}
+              </Droppable>
+            </DragDropContext>
+          </ColorSelectStylesInner>
+        </Appear>
+        <ButtonContainerStyles>
+          <Appear show={!finished}>
+            <Button
+              onClick={() => {
+                setShowBlocks(false);
 
-    console.log("CRASH", localCurrentQuestion);
-    const test2 = orderBy(localCurrentQuestion, "index");
-    console.log("OVER", test2);
-    return (
-        <>
-            <ColorSelectStyles>
-                <DragDropContext onDragEnd={onDragEnd}>
-                    <Droppable droppableId="droppable" direction="horizontal">
-                        {(provided, snapshot) => {
-                            return (
-                                <div
-                                    ref={provided.innerRef}
-                                    style={getListStyle(snapshot.isDraggingOver)}
-                                    {...provided.droppableProps}
-                                >
-                                    {localCurrentQuestion.map((qdata, key) => {
-                                            return (
-                                                <Draggable key={key} draggableId={qdata.id.toString()} index={key}>
-                                                    {(provided, snapshot) => (
-                                                        <ColorSquare provided={provided} col={qdata.name}
-                                                                     text={qdata.index}/>
-                                                    )}
-                                                </Draggable>
+                setTimeout(() => {
+                  const answerKey = localCurrentQuestion.map(q => {
+                    return q.id;
+                  });
+                  updateAnswers(answerKey);
+                  setShowBlocks(true);
+                }, 500);
 
-                                            );
-                                        }
-                                    )}
-                                </div>
-                            )
-                        }}
+                //console.log('CLICK', answerKey);
+              }}
+            >
+              Next 🠞
+            </Button>
+          </Appear>
+        </ButtonContainerStyles>
+      </ColorSelectStyles>
 
-                    </Droppable>
-                </DragDropContext>
-            </ColorSelectStyles>
-        </>
-    );
+      <LookupTable />
+    </>
+  );
 };
 
 export default ColorSelect;
